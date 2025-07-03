@@ -1,7 +1,20 @@
 #! /usr/bin/env node
 
-(async function () {
-  require('dotenv').config({ path: '.env.local' })
+require('dotenv').config({ path: '.env.local' });
 
-  await fetch(`${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-admin/admin-ajax.php?action=clear_graphql_cache`)  
-})()
+(async function () {
+  const fetch = (await import('node-fetch')).default;
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-admin/admin-ajax.php?action=clear_graphql_cache`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+    }
+
+    console.log('GraphQL cache cleared successfully.');
+  } catch (err) {
+    console.error('Failed to clear GraphQL cache:', err.message);
+    process.exit(1);
+  }
+})();
